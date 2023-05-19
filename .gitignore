@@ -1,0 +1,82 @@
+# .NET build folders
+obj/
+bin/
+
+# Visual Studio files
+.vs/
+*.user
+*.suo
+*.cache
+*.sln.docstates
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+_ReSharper*/
+*.dbmdl
+*.dbproj.user
+*.pch
+*.cache
+*.ilk
+*.meta
+*.obj
+*.swp
+*.tmp
+*.pch
+*.userprefs
+*.vspscc
+*.vssscc
+*.dotCover
+*.csproj.user
+*.bak
+*.~cov
+*.covxml
+*.opendb
+*.log
+*.vspx
+*.suo
+*.user
+*.psess
+*.vsp
+
+# NuGet
+packages/
+*.nupkg
+*.paket.template
+.paket/
+
+# Test Results
+[Tt]est[Rr]esult*/
+*.trx
+*.cov
+*.coverage
+TestResults/
+
+# Resharper
+_ReSharper*/
+*.resharper
+*.DotSettings.user
+
+# Visual Studio Code
+.vscode/
+
+# Other tools
+_ReSharper*/
+[Dd]oc/
+node_modules/
+bower_components/
+
+# Mac
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Thumbnails
+._*
+
+# Files that might appear on external disk
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Icon?
+Thumbs.db

@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32328.378
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExcelDataExtractor.Core", "ExcelDataExtractor.Core\ExcelDataExtractor.Core.csproj", "{305D00BF-C5A1-4194-83DF-603D75AB0744}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExcelDataExtractor.Test", "ExcelDataExtractor.Test\ExcelDataExtractor.Test.csproj", "{72F8EC66-DE67-40CE-985E-834EA37F1F08}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{305D00BF-C5A1-4194-83DF-603D75AB0744}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{305D00BF-C5A1-4194-83DF-603D75AB0744}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{305D00BF-C5A1-4194-83DF-603D75AB0744}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{305D00BF-C5A1-4194-83DF-603D75AB0744}.Release|Any CPU.Build.0 = Release|Any CPU
+		{72F8EC66-DE67-40CE-985E-834EA37F1F08}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{72F8EC66-DE67-40CE-985E-834EA37F1F08}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{72F8EC66-DE67-40CE-985E-834EA37F1F08}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{72F8EC66-DE67-40CE-985E-834EA37F1F08}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {BECBABE0-B9FD-4F74-8C16-5CDBC938CD56}
+	EndGlobalSection
+EndGlobal
