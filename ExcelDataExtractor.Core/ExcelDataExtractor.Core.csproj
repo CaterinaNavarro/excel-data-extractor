@@ -6,13 +6,22 @@
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageId>ExcelDataReaderExtractor</PackageId>
-    <Authors>cennavarro</Authors>
+    <Authors>cennav</Authors>
     <Product>ExcelDataReaderExtractor</Product>
     <Description>Process, validate and extract Excel file data</Description>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/CaterinaNavarro/excel-data-extractor</RepositoryUrl>
     <PackageTags>Excel, XLSX, Data, Extractor, Extract, Reader, Read, Process, Parse, Object, Excel data extractor, Excel reader</PackageTags>
+    <PackageIcon>nupkgicon.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
   </PropertyGroup>
+
+  <ItemGroup>
+	  <None Include="..\nupkgicon.png" Pack="true" PackagePath=""/>
+      <None Include="..\README.md" Pack="true" PackagePath=""/>
+	  <None Include="..\LICENSE" Pack="true" PackagePath=""/>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Aspose.Cells" Version="23.5.0" />
