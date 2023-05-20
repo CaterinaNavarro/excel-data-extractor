@@ -237,7 +237,7 @@ namespace ExcelDataExtractor.Test
         }
 
         [Fact]
-        public void Throw_Exception_Not_Indicated_Field()
+        public void Throw_Exception_Not_Indicated_Column_Name()
         {
             List<ExcelSheetField> fields = new()
             {
@@ -250,7 +250,7 @@ namespace ExcelDataExtractor.Test
                 }
             };
 
-            Assert.Throws<NotIndicatedFieldException>(() => _excelDataReaderExtractor.ProcessExtractData(_columnsWithDataContent, fields, ignoreUnindicatedFields: false));
+            Assert.Throws<NotIndicatedColumnNameException>(() => _excelDataReaderExtractor.ProcessExtractData(_columnsWithDataContent, fields, ignoreUnindicatedFields: false));
         }
 
     }

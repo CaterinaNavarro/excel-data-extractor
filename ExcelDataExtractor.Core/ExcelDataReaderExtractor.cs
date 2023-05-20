@@ -217,7 +217,7 @@ public class ExcelDataReaderExtractor : IExcelDataReaderExtractor
         IEnumerable<string> noExistingColumns = sheetColumnsNames.Where(x => !columns.Any(y => y.Equals(x, StringComparison.OrdinalIgnoreCase)));
 
         if (noExistingColumns.Any() && ignoreUnindicatedFields.HasValue && !ignoreUnindicatedFields.Value)
-            throw new NotIndicatedFieldException($"Following columns: {string.Join(",", noExistingColumns)} were not indicated as fields");
+            throw new NotIndicatedColumnNameException($"Following columns: {string.Join(",", noExistingColumns)} were not indicated as fields");
     }
 
     private Dictionary<string, object?> GetRowData(Row row, Row columnsNameRow, int columnsNumber, bool validateFields, IEnumerable<IExcelField>? fields = null, bool? ignoreUnindicatedFields = null)
