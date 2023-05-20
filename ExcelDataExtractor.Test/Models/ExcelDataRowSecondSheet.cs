@@ -2,12 +2,12 @@
 
 namespace ExcelDataExtractor.Test.Models
 {
-    internal class ExcelDataRow
+    internal class ExcelDataRowSecondSheet
     {
-        [JsonProperty("FirstColumnNumber")]
+        [JsonProperty("FirstColumnNumberSecondSheet")]
         public int FirstColumn { get; set; }
 
-        [JsonProperty("SecondColumnString")]
+        [JsonProperty("SecondColumnStringSecondSheet")]
         public string SecondColumn { get; set; } = null!;
     }
 }
