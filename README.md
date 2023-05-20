@@ -77,7 +77,7 @@ Returns the rows parsed into the output class list.
 
 
 ##### ---
-#### Extract the data of a specific sheet, performing fields validations
+#### Extract the data of a specific sheet, performing fields validations. Properties of the output type T have ExcelFieldAttribute
 
 Params: 
 * T: Output class whose properties contains the ExcelFieldAttribute for matching the columns names and provide specific information of the fields.
