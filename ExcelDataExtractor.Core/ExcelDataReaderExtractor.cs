@@ -17,25 +17,11 @@ public class ExcelDataReaderExtractor : IExcelDataReaderExtractor
 {
     private readonly TypeConverterHelper _typeConverter = new();
 
-    public List<List<Dictionary<string, object?>>> ProcessExtractData(byte[] byteArrayContent, IEnumerable<ExcelSheetField>? fields = null, bool? ignoreUnindicatedFields = null)
-    {
-        List<List<Dictionary<string, object?>>> excelData;
+    public List<List<Dictionary<string, object?>>> ProcessExtractData(byte[] byteArrayContent)
+        => ValidateProcessExtractData(byteArrayContent);
 
-        using (MemoryStream stream = new(byteArrayContent, 0, byteArrayContent.Length))
-        {
-            Workbook workbook = GetWorkbook(stream);
-            excelData = new(workbook.Worksheets.Count);
-
-            foreach (var worksheet in workbook.Worksheets)
-            {
-                IEnumerable<ExcelSheetField>? sheetFields = fields?.Where(x => x.SheetIndex == worksheet.Index);
-                List<Dictionary<string, object?>> excelDataSheet = GetExcelDataSheet(worksheet, sheetFields, ignoreUnindicatedFields);
-                excelData.Add(excelDataSheet);
-            }
-        }
-
-        return excelData;
-    }
+    public List<List<Dictionary<string, object?>>> ProcessExtractData(byte[] byteArrayContent, IEnumerable<ExcelSheetField> fields, bool ignoreUnindicatedFields)
+        => ValidateProcessExtractData(byteArrayContent, fields, ignoreUnindicatedFields);
 
     public List<T> ProcessExtractDataSheet<T>(byte[] byteArrayContent, int sheetIndex = 0)
         => ValidateProcessExtractDataSheet<T>(byteArrayContent, sheetIndex);
@@ -74,6 +60,31 @@ public class ExcelDataReaderExtractor : IExcelDataReaderExtractor
         return excelFields;
     }
 
+    private List<List<Dictionary<string, object?>>> ValidateProcessExtractData(byte[] byteArrayContent, IEnumerable<ExcelSheetField>? fields = null, bool? ignoreUnindicatedFields = null)
+    {
+        List<List<Dictionary<string, object?>>> excelData;
+
+        using (MemoryStream stream = new(byteArrayContent, 0, byteArrayContent.Length))
+        {
+            Workbook workbook = GetWorkbook(stream);
+            int sheetCountFile = workbook.Worksheets.Count;
+
+            if (fields is not null && fields.Any(x => x.SheetIndex >= sheetCountFile))
+                throw new SheetIndexNoExists();
+
+            excelData = new(sheetCountFile);
+
+            foreach (var worksheet in workbook.Worksheets)
+            {
+                IEnumerable<ExcelSheetField>? sheetFields = fields?.Where(x => x.SheetIndex == worksheet.Index);
+                List<Dictionary<string, object?>> excelDataSheet = GetExcelDataSheet(worksheet, sheetFields, ignoreUnindicatedFields);
+                excelData.Add(excelDataSheet);
+            }
+        }
+
+        return excelData;
+    }
+
     private List<T> ValidateProcessExtractDataSheet<T>(byte[] byteArrayContent, int sheetIndex = 0, IEnumerable<ExcelField>? fields = null, bool? ignoreUnindicatedFields = null)
     {
         List<T> excelDataSheet = new();
@@ -110,7 +121,6 @@ public class ExcelDataReaderExtractor : IExcelDataReaderExtractor
         }
     }
 
-
     private List<Dictionary<string, object?>> GetExcelDataSheet(Worksheet excelSheet, IEnumerable<IExcelField>? fields = null, bool? ignoreUnindicatedFields = null)
     {
         DeleteEmptyRows(excelSheet);
@@ -124,7 +134,7 @@ public class ExcelDataReaderExtractor : IExcelDataReaderExtractor
             throw new EmptySheetException($"Sheet number {excelSheet.Index + 1} is empty");
 
         if (rowsNumber == 1)
-            throw new NoColumnNameFirstRowException();
+            throw new MissingColumnNameFirstRowException();
 
         Row columnsNameRow = rows[0];
         bool validateFields = fields?.Any() ?? false;
@@ -190,7 +200,7 @@ public class ExcelDataReaderExtractor : IExcelDataReaderExtractor
 
             if (string.IsNullOrEmpty(columnName)) continue;
 
-            sheetColumnsNames.Add(columnName!.Trim().ToUpper());
+            sheetColumnsNames.Add(columnName!.Trim());
         }
 
         IEnumerable<string> repeatedColumns = sheetColumnsNames.GroupBy(x => x).Where(x => x.Count() > 1).Select(x => x.Key);
@@ -198,16 +208,16 @@ public class ExcelDataReaderExtractor : IExcelDataReaderExtractor
         if (repeatedColumns.Any())
             throw new RepeatedColumnException($"Following columns are repeated: {string.Join(",", repeatedColumns)}");
 
-        IEnumerable<string> columns = fields.Select(x => x.ColumnName.Trim().ToUpper());
-        IEnumerable<string> missingColumns = columns.Where(x => !sheetColumnsNames.Contains(x));
+        IEnumerable<string> columns = fields.Select(x => x.ColumnName);
+        IEnumerable<string> missingColumns = columns.Where(x => !sheetColumnsNames.Any(y => y.Equals(x, StringComparison.OrdinalIgnoreCase)));
 
         if (missingColumns.Any())
             throw new MissingColumnException($"Missing columns: {string.Join(",", missingColumns)}");
 
-        IEnumerable<string> noExistingColumns = sheetColumnsNames.Where(x => !columns.Contains(x));
+        IEnumerable<string> noExistingColumns = sheetColumnsNames.Where(x => !columns.Any(y => y.Equals(x, StringComparison.OrdinalIgnoreCase)));
 
         if (noExistingColumns.Any() && ignoreUnindicatedFields.HasValue && !ignoreUnindicatedFields.Value)
-            throw new NoIndicatedFieldException($"Following columns: {string.Join(",", noExistingColumns)} were not indicated as fields");
+            throw new NotIndicatedFieldException($"Following columns: {string.Join(",", noExistingColumns)} were not indicated as fields");
     }
 
     private Dictionary<string, object?> GetRowData(Row row, Row columnsNameRow, int columnsNumber, bool validateFields, IEnumerable<IExcelField>? fields = null, bool? ignoreUnindicatedFields = null)
@@ -274,7 +284,7 @@ public class ExcelDataReaderExtractor : IExcelDataReaderExtractor
             bool matchType = _typeConverter.TryParse(columnValue!, dataType, out object? valueConverted);
 
             if (!matchType)
-                throw new ColumnValueNotMatchFieldDataTypeException($"Column {columnName} values must be of type {dataType.GetAttribute<DescriptionAttribute>()!.Description}");
+                throw new FieldValueTypeDifferentFieldDataTypeException($"Column {columnName} values must be of type {dataType.GetAttribute<DescriptionAttribute>()!.Description}");
 
             columnValue = valueConverted;
         }

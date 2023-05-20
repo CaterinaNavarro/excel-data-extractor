@@ -7,8 +7,7 @@ internal class TypeConverterHelper
     private readonly Dictionary<DataTypes, Type> _converters = new()
     {
         { DataTypes.Integer, typeof(int) },
-        { DataTypes.String, typeof(string) },
-        { DataTypes.DateTime, typeof(DateTime) }
+        { DataTypes.String, typeof(string) }
     };
 
     internal bool TryParse(object value, DataTypes dataType, out object? valueConverted)

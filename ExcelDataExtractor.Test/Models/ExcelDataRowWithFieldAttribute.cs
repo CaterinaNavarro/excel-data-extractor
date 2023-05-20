@@ -9,7 +9,7 @@ namespace ExcelDataExtractor.Test.Models
         [ExcelField(columnName: "FirstColumnNumber", required: true, type: DataTypes.Integer)]
         public int FirstColumn { get; set; }
         
-        [ExcelField(columnName: "SecondColumnValue", required: true, type: DataTypes.String)]
+        [ExcelField(columnName: "SecondColumnString", required: true, type: DataTypes.String)]
         public string SecondColumn { get; set; } = null!;
     }
 }

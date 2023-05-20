@@ -25,7 +25,7 @@ namespace ExcelDataExtractor.Test.Helpers
 
             JsonPropertyAttribute? jsonPropertyAttribute = dataType.GetAttribute<JsonPropertyAttribute>();
 
-            Assert.NotNull(jsonPropertyAttribute);
+            Assert.Null(jsonPropertyAttribute);
         }
     }
 }
