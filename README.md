@@ -79,6 +79,10 @@ Returns the rows parsed into the output class list.
 ##### ---
 #### Extract the data of a specific sheet, performing fields validations. Properties of the output type T have ExcelFieldAttribute
 
+```csharp
+List<T> ProcessExtractDataSheet<T>(byte[] byteArrayContent, bool ignoreUnindicatedFields, int sheetIndex = 0);
+```
+
 Params: 
 * T: Output class whose properties contains the ExcelFieldAttribute for matching the columns names and provide specific information of the fields.
 * byteArrayContent
@@ -86,9 +90,7 @@ Params:
 * sheetIndex: Sheet index to extract, as default it is the first. 
 * The rows parsed into the output class list. 
 
-```csharp
-List<T> ProcessExtractDataSheet<T>(byte[] byteArrayContent, bool ignoreUnindicatedFields, int sheetIndex = 0);
-```
+
 
 
 ## Validations
