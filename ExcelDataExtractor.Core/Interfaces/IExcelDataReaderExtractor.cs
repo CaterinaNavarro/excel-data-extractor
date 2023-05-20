@@ -14,7 +14,7 @@ namespace ExcelDataExtractor.Core.Interfaces
         List<List<Dictionary<string, object?>>> ProcessExtractData(byte[] byteArrayContent);
 
         /// <summary>
-        /// Extract the data of the fields indicated.
+        /// Extract specific data, performs fields validations.
         /// </summary>
         /// <param name="byteArrayContent"> Byte array content. </param>
         /// <param name="fields"> Fields that the sheets must contain. </param>
@@ -27,7 +27,7 @@ namespace ExcelDataExtractor.Core.Interfaces
         List<List<Dictionary<string, object?>>> ProcessExtractData(byte[] byteArrayContent, IEnumerable<ExcelSheetField> fields, bool ignoreUnindicatedFields);
 
         /// <summary>
-        /// Extract the data of an specific sheet.
+        /// Extract the data of a specific sheet.
         /// </summary>
         /// <typeparam name="T"> Output class whose properties contains <c>JsonPropertyAttribute</c> (or another, if necessary) for matching the columns names. </typeparam>
         /// <param name="byteArrayContent"> Byte array content. </param>
@@ -36,7 +36,7 @@ namespace ExcelDataExtractor.Core.Interfaces
         List<T> ProcessExtractDataSheet<T>(byte[] byteArrayContent, int sheetIndex = 0);
 
         /// <summary>
-        /// Extract the data of an specific sheet.
+        /// Extract the data of a specific sheet, performing fields validations.
         /// </summary>
         /// <typeparam name="T"> Output class whose properties contains <c>JsonPropertyAttribute</c> (or another, if necessary) for matching the columns names. </typeparam>
         /// <param name="byteArrayContent"> Byte array content. </param>
@@ -49,7 +49,7 @@ namespace ExcelDataExtractor.Core.Interfaces
         List<T> ProcessExtractDataSheet<T>(byte[] byteArrayContent, IEnumerable<ExcelField> fields, bool ignoreUnindicatedFields, int sheetIndex = 0);
 
         /// <summary>
-        /// Extract the data of an specific sheet.
+        /// Extract the data of a specific sheet, performing fields validations.
         /// </summary>
         /// <typeparam name="T"> Output class whose properties contains the <c>ExcelFieldAttribute</c> for matching the columns names and provide specific information of the fields. </typeparam>
         /// <param name="byteArrayContent"> Byte array content. </param>
