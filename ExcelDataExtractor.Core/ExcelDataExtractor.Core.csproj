@@ -13,6 +13,7 @@
     <RepositoryUrl>https://github.com/cennav/ExcelDataReaderExtractor.git</RepositoryUrl>
     <PackageTags>exceldatareaderextractor, exceldatareader, exceldataextractor, excel, validatefields, excelfields, field, validate, validations, excelreader, excelextractor, exceldata, excelsheet, exceldatasheet, sheet, xlsx, extractor, reader, column, c#, csharp, .net, opensource, converter, parser, json, dictionary, data, datareader, dataextractor</PackageTags>
     <PackageIcon>nupkgicon.png</PackageIcon>
+	<PackageReadmeFile>README.md</PackageReadmeFile>
 	<PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/cennav/ExcelDataReaderExtractor.git</PackageProjectUrl>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
@@ -22,6 +23,7 @@
 
   <ItemGroup>
 	  <None Include="..\nupkgicon.png" Pack="true" PackagePath="" />
+	  <None Include="..\README.md" Pack="true" PackagePath="" />
 	  <None Include="..\LICENSE" Pack="true" PackagePath="" />
   </ItemGroup>
 
