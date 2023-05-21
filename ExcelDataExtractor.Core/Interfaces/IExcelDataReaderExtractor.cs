@@ -27,15 +27,6 @@ namespace ExcelDataExtractor.Core.Interfaces
         List<List<Dictionary<string, object?>>> ProcessExtractData(byte[] byteArrayContent, IEnumerable<ExcelSheetField> fields, bool ignoreUnindicatedFields);
 
         /// <summary>
-        /// Extract the data of a specific sheet.
-        /// </summary>
-        /// <typeparam name="T"> Output class whose properties contains <c>JsonPropertyAttribute</c> (or another, if necessary) for matching the columns names. </typeparam>
-        /// <param name="byteArrayContent"> Byte array content. </param>
-        /// <param name="sheetIndex"> Sheet index to extract, as default it is the first. </param>
-        /// <returns> The rows parsed into the output class list. </returns>
-        List<T> ProcessExtractDataSheet<T>(byte[] byteArrayContent, int sheetIndex = 0);
-
-        /// <summary>
         /// Extract the data of a specific sheet, performing fields validations.
         /// </summary>
         /// <typeparam name="T"> Output class whose properties contains <c>JsonPropertyAttribute</c> (or another, if necessary) for matching the columns names. </typeparam>

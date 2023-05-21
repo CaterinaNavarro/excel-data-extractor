@@ -23,9 +23,6 @@ public class ExcelDataReaderExtractor : IExcelDataReaderExtractor
     public List<List<Dictionary<string, object?>>> ProcessExtractData(byte[] byteArrayContent, IEnumerable<ExcelSheetField> fields, bool ignoreUnindicatedFields)
         => ValidateProcessExtractData(byteArrayContent, fields, ignoreUnindicatedFields);
 
-    public List<T> ProcessExtractDataSheet<T>(byte[] byteArrayContent, int sheetIndex = 0)
-        => ValidateProcessExtractDataSheet<T>(byteArrayContent, sheetIndex);
-
     public List<T> ProcessExtractDataSheet<T>(byte[] byteArrayContent, IEnumerable<ExcelField> fields, bool ignoreUnindicatedFields, int sheetIndex = 0)
         => ValidateProcessExtractDataSheet<T>(byteArrayContent, sheetIndex, fields, ignoreUnindicatedFields);
 
