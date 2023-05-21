@@ -1,7 +1,6 @@
 # Excel Data Reader Extractor C# .NET 6 
 
-Nuget library specialized in process, validate and extract excel file data.
-
+Open Source library specialized in processing, validating and extracting data from files in Excel format. Supports field validations and conversion to a specific type.
 
 ## Documentation
 
@@ -13,7 +12,7 @@ Each list item of the main list represents a sheet.
 Each sheet contains a list of dictionary, a dictionary represents only one row of the sheet.
 The key of the dictionary is the column name, and the value is the stored on the current field.
 
-It provides methods to parse each Dictionary element into an specific object T type, to do this is necessary the properties that this T type has, contains JsonPropertyAttribute (or similar, if necessary) or ExcelFieldAttribute for matching with columns names that are stored as keys of the dictionary.
+It provides methods to convert each Dictionary element into a specific object T type, to do this is necessary the properties that this T type has, contains JsonPropertyAttribute (or similar, if necessary) or ExcelFieldAttribute for matching with columns names that are stored as keys of the dictionary.
 
 Newtonsoft.Json is used to convert the objects.
 
@@ -58,7 +57,7 @@ Params:
 * ignoreUnindicatedFields: If true does not make any validations on the fields that exists in the sheet but were not indicated as fields,as consequence it does not extract them neither. If false validate the sheet contains the columns indicated only.
 * sheetIndex: Sheet index to extract, as default is the first. 
 
-Returns the rows parsed into the output class list.
+Returns the rows converted into the output class list.
 
 
 ##### ---
@@ -73,7 +72,7 @@ Params:
 * byteArrayContent
 * ignoreUnindicatedFields: If true does not make any validations on the fields that exists in the sheet but were not indicated as fields, as consequence it does not extract them neither. If false validate the sheet contains the columns indicated only.
 * sheetIndex: Sheet index to extract, as default it is the first. 
-* The rows parsed into the output class list. 
+* The rows converted into the output class list. 
 
 
 
@@ -90,7 +89,7 @@ Params:
 
 
 ```csharp
-public void Extract_All_Data_No_Parse_Model()
+public void Extract_All_Data_No_Convert_Model()
 {
     List<List<Dictionary<string, object?>>> excelData;
 
@@ -100,7 +99,7 @@ public void Extract_All_Data_No_Parse_Model()
 }
 
 
-public void Extract_Data_Validate_Fields_No_Parse_Model()
+public void Extract_Data_Validate_Fields_No_Convert_Model()
 {
     List<List<Dictionary<string, object?>>> excelData;
     List<ExcelSheetField> fields = new()
@@ -131,7 +130,7 @@ public void Extract_Data_Validate_Fields_No_Parse_Model()
 }
 
 
-public void Extract_Data_Sheet_Fields_Parse_Model()
+public void Extract_Data_Sheet_Fields_Convert_Model()
 {
     List<ExcelDataRow> excelDataSheet;
     List<ExcelField> fields = new()
@@ -156,7 +155,7 @@ public void Extract_Data_Sheet_Fields_Parse_Model()
 }
 
 
-public void Extract_Data_Second_Sheet_Fields_Parse_Model()
+public void Extract_Data_Second_Sheet_Fields_Convert_Model()
 {
     List<ExcelDataRowSecondSheet> excelDataSheet;
     List<ExcelField> fields = new()
@@ -184,7 +183,7 @@ public void Extract_Data_Second_Sheet_Fields_Parse_Model()
 }
 
 
-public void Extract_Data_Sheet_Parse_Model_With_Fields_Attribute()
+public void Extract_Data_Sheet_Convert_Model_With_Fields_Attribute()
 {
     List<ExcelDataRowWithFieldAttribute> excelDataSheet;
 
@@ -239,7 +238,7 @@ Exception thrown when the field type value is different from the one given by Da
 
 #### MissingExcelFieldAttributeException
 
-Exception thrown when using the method to extract data and parse into an specific object type T without indicating the list of fields apart. In this case, the type T must include the ExcelFieldAttribute in all of its properties.
+Exception thrown when using the method to extract data and convert into a specific object type T without indicating the list of fields apart. In this case, the type T must include the ExcelFieldAttribute in all of its properties.
 
 #### RequiredFieldException
 

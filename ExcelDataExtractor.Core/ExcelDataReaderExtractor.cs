@@ -97,7 +97,7 @@ public class ExcelDataReaderExtractor : IExcelDataReaderExtractor
 
             List<Dictionary<string, object?>> sheetData = GetExcelDataSheet(worksheet, fields, ignoreUnindicatedFields);
 
-            excelDataSheet = ParseSheetData<T>(sheetData);
+            excelDataSheet = ConvertSheetData<T>(sheetData);
         }
 
         return excelDataSheet;
@@ -287,12 +287,12 @@ public class ExcelDataReaderExtractor : IExcelDataReaderExtractor
         }
     }
 
-    private static List<T> ParseSheetData<T>(List<Dictionary<string, object?>> excelSheetData)
+    private static List<T> ConvertSheetData<T>(List<Dictionary<string, object?>> excelSheetData)
     {
         string jsonExcelData = JsonConvert.SerializeObject(excelSheetData);
 
-        List<T> excelDataParsed = JArray.Parse(jsonExcelData).ToObject<List<T>>()!;
+        List<T> excelDataConverted = JArray.Parse(jsonExcelData).ToObject<List<T>>()!;
 
-        return excelDataParsed;
+        return excelDataConverted;
     }
 }
