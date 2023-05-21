@@ -131,16 +131,6 @@ public void Extract_Data_Validate_Fields_No_Parse_Model()
 }
 
 
-public void Extract_Data_Sheet_Parse_Model()
-{
-    List<ExcelDataRow> excelDataSheet;
-
-    excelDataSheet = _excelDataReaderExtractor.ProcessExtractDataSheet<ExcelDataRow>(_columnsWithDataContent);
-        
-    Assert.NotEmpty(excelDataSheet);
-}
-
-
 public void Extract_Data_Sheet_Fields_Parse_Model()
 {
     List<ExcelDataRow> excelDataSheet;
@@ -203,7 +193,7 @@ public void Extract_Data_Sheet_Parse_Model_With_Fields_Attribute()
     Assert.NotEmpty(excelDataSheet);
 }
 ```
-More examples on the testing project.
+More examples on the test project.
 
 ## Exceptions
 
