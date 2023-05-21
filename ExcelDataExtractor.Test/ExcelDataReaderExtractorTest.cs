@@ -80,16 +80,6 @@ namespace ExcelDataExtractor.Test
         }
 
         [Fact]
-        public void Extract_Data_Sheet_Parse_Model()
-        {
-            List<ExcelDataRow> excelDataSheet;
-
-            excelDataSheet = _excelDataReaderExtractor.ProcessExtractDataSheet<ExcelDataRow>(_columnsWithDataContent);
-                
-            Assert.NotEmpty(excelDataSheet);
-        }
-
-        [Fact]
         public void Extract_Data_Sheet_Fields_Parse_Model()
         {
             List<ExcelDataRow> excelDataSheet;
@@ -182,14 +172,6 @@ namespace ExcelDataExtractor.Test
             };
 
             Assert.Throws<SheetIndexNoExists>(() => _excelDataReaderExtractor.ProcessExtractData(_dataOnTwoSheetsContent, fields, ignoreUnindicatedFields: true));
-        }
-
-        [Fact]
-        public void Throw_Exception_Sheet_Index_No_Exists()
-        {
-            int index = 5;
-
-            Assert.Throws<UnsupportedFileException>(() => _excelDataReaderExtractor.ProcessExtractDataSheet<ExcelDataRow>(_unsupportedFileTypeContent, index));
         }
 
         [Fact]

@@ -45,21 +45,6 @@ Params:
 Returns a List of List of Dictionary, each list item of the main list represents a sheet. Each sheet contains a list of dictionary, a dictionary represents only one row of the sheet. The key of the dictionary is the column name, and the value is the stored on the current field.
 
 ##### ---
-#### Extract the data of a specific sheet
-
-```csharp
-List<T> ProcessExtractDataSheet<T>(byte[] byteArrayContent, int sheetIndex = 0);
-```
-
-Params:
-* T: Output class whose properties contains JsonPropertyAttribute (or similar, if necessary) for matching the columns names.
-* byteArrayContent
-* sheetIndex: Sheet index to extract, as default it is the first.
-
-Returns the rows parsed into the output class list. 
-
-
-##### ---
 #### Extract the data of a specific sheet, performing fields validations
 
 ```csharp
@@ -146,16 +131,6 @@ public void Extract_Data_Validate_Fields_No_Parse_Model()
 }
 
 
-public void Extract_Data_Sheet_Parse_Model()
-{
-    List<ExcelDataRow> excelDataSheet;
-
-    excelDataSheet = _excelDataReaderExtractor.ProcessExtractDataSheet<ExcelDataRow>(_columnsWithDataContent);
-        
-    Assert.NotEmpty(excelDataSheet);
-}
-
-
 public void Extract_Data_Sheet_Fields_Parse_Model()
 {
     List<ExcelDataRow> excelDataSheet;
@@ -218,7 +193,7 @@ public void Extract_Data_Sheet_Parse_Model_With_Fields_Attribute()
     Assert.NotEmpty(excelDataSheet);
 }
 ```
-More examples on the testing project.
+More examples on the test project.
 
 ## Exceptions
 
