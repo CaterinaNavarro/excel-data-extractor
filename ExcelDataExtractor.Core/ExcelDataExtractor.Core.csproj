@@ -10,7 +10,7 @@
     <Product>ExcelDataReaderExtractor</Product>
     <Description>Process, validate and extract Excel file data</Description>
     <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/CaterinaNavarro/excel-data-extractor</RepositoryUrl>
+    <RepositoryUrl>https://github.com/cennav/ExcelDataReaderExtractor.git</RepositoryUrl>
     <PackageTags>Excel, XLSX, Data, Extractor, Extract, Reader, Read, Process, Parse, Object, Excel data extractor, Excel reader</PackageTags>
     <PackageIcon>nupkgicon.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
@@ -18,9 +18,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-	  <None Include="..\nupkgicon.png" Pack="true" PackagePath=""/>
-      <None Include="..\README.md" Pack="true" PackagePath=""/>
-	  <None Include="..\LICENSE" Pack="true" PackagePath=""/>
+	  <None Include="..\nupkgicon.png" Pack="true" PackagePath="" />
+      <None Include="..\README.md" Pack="true" PackagePath="" />
+	  <None Include="..\LICENSE" Pack="true" PackagePath="" />
   </ItemGroup>
 
   <ItemGroup>
