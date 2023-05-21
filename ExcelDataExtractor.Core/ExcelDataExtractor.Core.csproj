@@ -8,13 +8,14 @@
     <PackageId>ExcelDataReaderExtractor</PackageId>
     <Authors>cennav</Authors>
     <Product>ExcelDataReaderExtractor</Product>
-    <Description>Process, validate and extract Excel file data</Description>
+    <Description>Open Source library specialized in processing, validating and extracting data from files in Excel format. Supports fields validations and conversion of the extracted data to a specific type.</Description>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/cennav/ExcelDataReaderExtractor.git</RepositoryUrl>
-    <PackageTags>Excel, XLSX, Data, Extractor, Extract, Reader, Read, Process, Parse, Object, Excel data extractor, Excel reader</PackageTags>
+    <PackageTags>exceldatareaderextractor, exceldatareader, exceldataextractor, excel, validatefields, excelfields, field, validate, validations, excelreader, excelextractor, exceldata, excelsheet, exceldatasheet, sheet, xlsx, extractor, reader, column, c#, csharp, .net, opensource, converter, parser, json, dictionary, data, datareader, dataextractor</PackageTags>
     <PackageIcon>nupkgicon.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+	<PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageProjectUrl>https://github.com/cennav/ExcelDataReaderExtractor.git</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>

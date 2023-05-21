@@ -36,7 +36,7 @@ namespace ExcelDataExtractor.Core.Interfaces
         /// as consequence it does not extract them neither.</para>
         /// If <c>false</c> validate the sheet contains the columns indicated only.</param>
         /// <param name="sheetIndex"> Sheet index to extract, as default is the first. </param>
-        /// <returns> The rows parsed into the output class list. </returns>
+        /// <returns> The rows converted into the output class list. </returns>
         List<T> ProcessExtractDataSheet<T>(byte[] byteArrayContent, IEnumerable<ExcelField> fields, bool ignoreUnindicatedFields, int sheetIndex = 0);
 
         /// <summary>
@@ -48,7 +48,7 @@ namespace ExcelDataExtractor.Core.Interfaces
         /// as consequence it does not extract them neither.</para>+6252
         /// If <c>false</c> validate the sheet contains the columns indicated only.</param>
         /// <param name="sheetIndex"> Sheet index to extract, as default it is the first. </param>
-        /// <returns> The rows parsed into the output class list. </returns>
+        /// <returns> The rows converted into the output class list. </returns>
         List<T> ProcessExtractDataSheet<T>(byte[] byteArrayContent, bool ignoreUnindicatedFields, int sheetIndex = 0);
     }
 }

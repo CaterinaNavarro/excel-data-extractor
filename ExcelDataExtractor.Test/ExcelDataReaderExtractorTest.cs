@@ -39,7 +39,7 @@ namespace ExcelDataExtractor.Test
         }
 
         [Fact]
-        public void Extract_All_Data_No_Parse_Model()
+        public void Extract_All_Data_No_Convert_Model()
         {
             List<List<Dictionary<string, object?>>> excelData;
 
@@ -49,7 +49,7 @@ namespace ExcelDataExtractor.Test
         }
 
         [Fact]
-        public void Extract_Data_Validate_Fields_No_Parse_Model()
+        public void Extract_Data_Validate_Fields_No_Convert_Model()
         {
             List<List<Dictionary<string, object?>>> excelData;
             List<ExcelSheetField> fields = new()
@@ -80,7 +80,7 @@ namespace ExcelDataExtractor.Test
         }
 
         [Fact]
-        public void Extract_Data_Sheet_Fields_Parse_Model()
+        public void Extract_Data_Sheet_Fields_Convert_Model()
         {
             List<ExcelDataRow> excelDataSheet;
             List<ExcelField> fields = new()
@@ -105,7 +105,7 @@ namespace ExcelDataExtractor.Test
         }
 
         [Fact]
-        public void Extract_Data_Second_Sheet_Fields_Parse_Model()
+        public void Extract_Data_Second_Sheet_Fields_Convert_Model()
         {
             List<ExcelDataRowSecondSheet> excelDataSheet;
             List<ExcelField> fields = new()
@@ -133,7 +133,7 @@ namespace ExcelDataExtractor.Test
         }
 
         [Fact]
-        public void Extract_Data_Sheet_Parse_Model_With_Fields_Attribute()
+        public void Extract_Data_Sheet_Convert_Model_With_Fields_Attribute()
         {
             List<ExcelDataRowWithFieldAttribute> excelDataSheet;
 
@@ -191,7 +191,7 @@ namespace ExcelDataExtractor.Test
         }
 
         [Fact]
-        public void Throw_Exception_Parse_Model_Without_Fields_Attribute()
+        public void Throw_Exception_Convert_Model_Without_Fields_Attribute()
         {
             Assert.Throws<MissingExcelFieldAttributeException>(() => _excelDataReaderExtractor.ProcessExtractDataSheet<ExcelDataRow>(_columnsWithDataContent, ignoreUnindicatedFields: false));
         }
