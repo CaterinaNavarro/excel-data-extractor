@@ -251,7 +251,7 @@ namespace ExcelDataExtractor.Test
                 new()
                 {
                     ColumnName = "SecondColumnString",
-                    Required = true,
+                    Required = false,
                     Type = DataTypes.Integer
                 }
             };

@@ -328,7 +328,7 @@ public class ExcelDataReaderExtractor : IExcelDataReaderExtractor
         if (requiredFieldHasNoValue)
             throw new RequiredFieldException($"Required field '{columnName}' value is missing");
 
-        bool validateDataType = field.Type is not null;
+        bool validateDataType = field.Type is not null && columnHasValue;
 
         if (!validateDataType) return;
 
@@ -339,15 +339,12 @@ public class ExcelDataReaderExtractor : IExcelDataReaderExtractor
 
         DataTypes dataType = EnumHelper.GetValues<DataTypes>().First(x => x == field.Type);
 
-        if (field.Required)
-        {
-            bool matchType = _typeConverter.TryParse(columnValue!, dataType, out object? valueConverted);
+        bool matchType = _typeConverter.TryParse(columnValue!, dataType, out object? valueConverted);
 
-            if (!matchType)
-                throw new FieldValueTypeDifferentFieldDataTypeException($"Column {columnName} values must be of type {dataType.GetAttribute<DescriptionAttribute>()!.Description}");
+        if (!matchType)
+            throw new FieldValueTypeDifferentFieldDataTypeException($"Column {columnName} values must be of type {dataType.GetAttribute<DescriptionAttribute>()!.Description}");
 
-            columnValue = valueConverted;
-        }
+        columnValue = valueConverted;
     }
 
     private static bool ExistsDataSheetNoEmpty(params IEnumerable<Dictionary<string, object?>>[] dataSheets) => dataSheets.Any(x => x.Any());
