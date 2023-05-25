@@ -16,7 +16,9 @@ namespace ExcelDataExtractor.Test
             _dataWithMissingColumnsNamesContent,
             _emptyContent,
             _unsupportedFileTypeContent,
-            _requiredFieldMissingContent;
+            _requiredFieldMissingContent,
+            _columnsNamesOnlyOnFirstSheetContent,
+            _thirdSheetHasValuesContent;
 
         public ExcelDataReaderExtractorTest()
         {
@@ -26,7 +28,9 @@ namespace ExcelDataExtractor.Test
                 dataWithMissingColumnsNamesPath = Path.Combine(filesRootPath, "DataWithMissingColumnsNames.xlsx"),
                 emptyPath = Path.Combine(filesRootPath, "Empty.xlsx"),
                 notSupportedFormatPath = Path.Combine(filesRootPath, "UnsupportedFileType.docx"),
-                requiredFieldMissingPath = Path.Combine(filesRootPath, "RequiredFieldMissing.xlsx");
+                requiredFieldMissingPath = Path.Combine(filesRootPath, "RequiredFieldMissing.xlsx"),
+                columnsNamesOnlyOnFirstSheetPath = Path.Combine(filesRootPath, "ColumnsNamesOnlyOnFirstSheet.xlsx"),
+                thirdSheetHasValuesPath = Path.Combine(filesRootPath, "ThirdSheetHasValues.xlsx");
                 
 
             _excelDataReaderExtractor = new ExcelDataReaderExtractor();
@@ -36,22 +40,34 @@ namespace ExcelDataExtractor.Test
             _emptyContent = File.ReadAllBytes(emptyPath);
             _unsupportedFileTypeContent = File.ReadAllBytes(notSupportedFormatPath);
             _requiredFieldMissingContent = File.ReadAllBytes(requiredFieldMissingPath);
+            _columnsNamesOnlyOnFirstSheetContent = File.ReadAllBytes(columnsNamesOnlyOnFirstSheetPath);
+            _thirdSheetHasValuesContent = File.ReadAllBytes(thirdSheetHasValuesPath);   
         }
 
         [Fact]
         public void Extract_All_Data_No_Convert_Model()
         {
-            List<List<Dictionary<string, object?>>> excelData;
+            IEnumerable<IEnumerable<Dictionary<string, object?>>> excelData;
 
-            excelData = _excelDataReaderExtractor.ProcessExtractData(_columnsWithDataContent);
+            excelData = _excelDataReaderExtractor.ProcessExtractData(_thirdSheetHasValuesContent, excludeSheetsWithNoneOrOneRows: false);
 
-            Assert.NotEmpty(excelData);
+            Assert.True(excelData.Count() == 3 && excelData.Last().Count() == 1);
+        }
+
+        [Fact]
+        public void Extract_Data_Excluding_Sheets_With_None_One_Row()
+        {
+            IEnumerable<IEnumerable<Dictionary<string, object?>>> excelData;
+
+            excelData = _excelDataReaderExtractor.ProcessExtractData(_thirdSheetHasValuesContent, excludeSheetsWithNoneOrOneRows: true);
+
+            Assert.True(excelData.Count() == 1 && excelData.First().Count() == 1);
         }
 
         [Fact]
         public void Extract_Data_Validate_Fields_No_Convert_Model()
         {
-            List<List<Dictionary<string, object?>>> excelData;
+            IEnumerable<IEnumerable<Dictionary<string, object?>>> excelData;
             List<ExcelSheetField> fields = new()
             {
                 new()
@@ -73,16 +89,17 @@ namespace ExcelDataExtractor.Test
             int firstColumnFirstSheetValue = 1;
             string secondColumnSecondSheetValue = "fifth value";
 
-            excelData = _excelDataReaderExtractor.ProcessExtractData(_dataOnTwoSheetsContent, fields, ignoreUnindicatedFields: true);
+            excelData = _excelDataReaderExtractor.ProcessExtractData(_dataOnTwoSheetsContent, fields, ignoreUnindicatedFields: true, excludeSheetsWithNoneOrOneRows: false);
 
-            Assert.True(excelData[0].Any(firstSheet => (int)firstSheet["FirstColumnNumber"]! == firstColumnFirstSheetValue) &&
-                        excelData[1].Any(secondSheet => secondSheet["SecondColumnStringSecondSheet"]!.ToString() == secondColumnSecondSheetValue));
+            Assert.True(excelData.Count() == 2 && 
+                excelData.First().Any(firstSheet => (int)firstSheet["FirstColumnNumber"]! == firstColumnFirstSheetValue) &&
+                excelData.Last().Any(secondSheet => secondSheet["SecondColumnStringSecondSheet"]!.ToString() == secondColumnSecondSheetValue));
         }
 
         [Fact]
         public void Extract_Data_Sheet_Fields_Convert_Model()
         {
-            List<ExcelDataRow> excelDataSheet;
+            IEnumerable<ExcelDataRow> excelDataSheet;
             List<ExcelField> fields = new()
             {
                 new()
@@ -101,13 +118,13 @@ namespace ExcelDataExtractor.Test
 
             excelDataSheet = _excelDataReaderExtractor.ProcessExtractDataSheet<ExcelDataRow>(_columnsWithDataContent, fields: fields, ignoreUnindicatedFields: true);
 
-            Assert.NotEmpty(excelDataSheet);
+            Assert.True(excelDataSheet.Count() == 2);
         }
 
         [Fact]
         public void Extract_Data_Second_Sheet_Fields_Convert_Model()
         {
-            List<ExcelDataRowSecondSheet> excelDataSheet;
+            IEnumerable<ExcelDataRowSecondSheet> excelDataSheet;
             List<ExcelField> fields = new()
             {
                 new()
@@ -135,7 +152,7 @@ namespace ExcelDataExtractor.Test
         [Fact]
         public void Extract_Data_Sheet_Convert_Model_With_Fields_Attribute()
         {
-            List<ExcelDataRowWithFieldAttribute> excelDataSheet;
+            IEnumerable<ExcelDataRowWithFieldAttribute> excelDataSheet;
 
             excelDataSheet = _excelDataReaderExtractor.ProcessExtractDataSheet<ExcelDataRowWithFieldAttribute>(_columnsWithDataContent, ignoreUnindicatedFields: true);
 
@@ -147,7 +164,37 @@ namespace ExcelDataExtractor.Test
         {
             List<List<Dictionary<string, object?>>> excelData = new();
 
-            Assert.Throws<UnsupportedFileException>(() => _excelDataReaderExtractor.ProcessExtractData(_unsupportedFileTypeContent));
+            Assert.Throws<UnsupportedFileException>(() => _excelDataReaderExtractor.ProcessExtractData(_unsupportedFileTypeContent, excludeSheetsWithNoneOrOneRows: true));
+        }
+
+        [Fact]
+        public void Throw_Exception_Sheet_Has_Only_One_Row()
+        {
+            Assert.Throws<SheetHasOnlyOneRowException>(() => _excelDataReaderExtractor.ProcessExtractDataSheet<ExcelDataRowWithFieldAttribute>(_columnsNamesOnlyOnFirstSheetContent, ignoreUnindicatedFields: false));
+        }
+
+        [Fact]
+        public void Throw_Exception_Sheet_Has_No_Row()
+        {
+            List<ExcelField> fields = new()
+            {
+                new()
+                {
+                    ColumnName = "FirstColumnNumberSecondSheet",
+                    Required = true,
+                    Type = DataTypes.Integer
+                },
+                new()
+                {
+                    ColumnName = "SecondColumnStringSecondSheet",
+                    Required = false,
+                    Type = DataTypes.String
+                }
+            };
+
+            int sheetIndex = 1;
+
+            Assert.Throws<SheetHasNoRowException>(() => _excelDataReaderExtractor.ProcessExtractDataSheet<ExcelDataRow>(_thirdSheetHasValuesContent, fields: fields, ignoreUnindicatedFields: false, sheetIndex: sheetIndex));
         }
 
         [Fact]
@@ -171,15 +218,15 @@ namespace ExcelDataExtractor.Test
                 }
             };
 
-            Assert.Throws<SheetIndexNoExists>(() => _excelDataReaderExtractor.ProcessExtractData(_dataOnTwoSheetsContent, fields, ignoreUnindicatedFields: true));
+            Assert.Throws<SheetIndexNoExists>(() => _excelDataReaderExtractor.ProcessExtractData(_dataOnTwoSheetsContent, fields, ignoreUnindicatedFields: true, excludeSheetsWithNoneOrOneRows: false));
         }
 
         [Fact]
-        public void Throw_Exception_Empty_File()
+        public void Throw_Exception_File_Has_No_Row_Or_Data()
         {
             List<List<Dictionary<string, object?>>> excelData = new();
 
-            Assert.Throws<EmptySheetException>(() => _excelDataReaderExtractor.ProcessExtractData(_emptyContent));
+            Assert.Throws<FileHasNoDataException>(() => _excelDataReaderExtractor.ProcessExtractData(_emptyContent, excludeSheetsWithNoneOrOneRows: true));
         }
 
         [Fact]
@@ -187,7 +234,7 @@ namespace ExcelDataExtractor.Test
         {
             List<List<Dictionary<string, object?>>> excelData = new();
 
-            Assert.Throws<FieldHasValueNoColumnNameException>(() => _excelDataReaderExtractor.ProcessExtractData(_dataWithMissingColumnsNamesContent));
+            Assert.Throws<FieldHasValueNoColumnNameException>(() => _excelDataReaderExtractor.ProcessExtractData(_dataWithMissingColumnsNamesContent, excludeSheetsWithNoneOrOneRows: false));
         }
 
         [Fact]
@@ -232,7 +279,7 @@ namespace ExcelDataExtractor.Test
                 }
             };
 
-            Assert.Throws<NotIndicatedColumnNameException>(() => _excelDataReaderExtractor.ProcessExtractData(_columnsWithDataContent, fields, ignoreUnindicatedFields: false));
+            Assert.Throws<NotIndicatedColumnNameException>(() => _excelDataReaderExtractor.ProcessExtractData(_columnsWithDataContent, fields, ignoreUnindicatedFields: false, excludeSheetsWithNoneOrOneRows: false));
         }
 
     }
