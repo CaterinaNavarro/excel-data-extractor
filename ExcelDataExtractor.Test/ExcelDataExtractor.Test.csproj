@@ -24,6 +24,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Files\ColumnsNamesOnlyOnFirstSheet.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Files\ThirdSheetHasValues.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Files\ColumnsWithData.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

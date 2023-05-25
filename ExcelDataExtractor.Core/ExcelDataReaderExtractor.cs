@@ -13,20 +13,66 @@ using System.Reflection;
 
 namespace ExcelDataExtractor.Core;
 
+/// <summary>
+/// <c>IExcelDataReaderExtractor</c> implementation, for processing, validating and extracting data from files in Excel format. Supports field validations and conversion to a specific type.
+/// </summary>
 public class ExcelDataReaderExtractor : IExcelDataReaderExtractor
 {
     private readonly TypeConverterHelper _typeConverter = new();
 
-    public List<List<Dictionary<string, object?>>> ProcessExtractData(byte[] byteArrayContent)
-        => ValidateProcessExtractData(byteArrayContent);
+    /// <summary>
+    /// Extract all data of all sheets.
+    /// </summary>
+    /// <param name="byteArrayContent"> Byte array content. </param>
+    /// <param name="excludeSheetsWithNoneOrOneRows"> If <c> True </c> exclude sheets with none or one rows, 
+    /// if <c>False</c> the result could contain any <c>IEnumerable</c> with no <c>Dictionary</c> items. </param>
+    /// <returns> <para>An <c> IEnumerable </c> where each item represents a sheet. 
+    /// Each sheet contains a sequence of <c>Dictionary</c>, a single <c>Dictionary</c> represents only one row of the sheet.</para>
+    /// The key of the <c>Dictionary</c> is the column name, and the value is the stored on the current field.</returns>
+    public IEnumerable<IEnumerable<Dictionary<string, object?>>> ProcessExtractData(byte[] byteArrayContent, bool excludeSheetsWithNoneOrOneRows)
+        => ValidateProcessExtractData(byteArrayContent, excludeSheetsWithNoneOrOneRows: excludeSheetsWithNoneOrOneRows);
 
-    public List<List<Dictionary<string, object?>>> ProcessExtractData(byte[] byteArrayContent, IEnumerable<ExcelSheetField> fields, bool ignoreUnindicatedFields)
-        => ValidateProcessExtractData(byteArrayContent, fields, ignoreUnindicatedFields);
+    /// <summary>
+    /// Extract specific data, performs fields validations.
+    /// </summary>
+    /// <param name="byteArrayContent"> Byte array content. </param>
+    /// <param name="fields"> Fields that the sheets must contain. </param>
+    /// <param name="ignoreUnindicatedFields"> <para>If <c>true</c> does not make any validations on the fields that exists in the file but were not indicated as fields,
+    /// as consequence it does not extract them neither.</para>
+    /// If <c>false</c> validate the sheets contains the columns indicated only.</param>
+    /// <param name="excludeSheetsWithNoneOrOneRows"> If <c> True </c> exclude sheets with none or one rows, 
+    /// if <c>False</c> the result could contain any <c>IEnumerable</c> with no <c>Dictionary</c> items. </param>
+    /// <returns> <para>An <c> IEnumerable </c> where each item represents a sheet. 
+    /// Each sheet contains a sequence of <c>Dictionary</c>, a single <c>Dictionary</c> represents only one row of the sheet.</para>
+    /// The key of the <c>Dictionary</c> is the column name, and the value is the stored on the current field.</returns>
+    public IEnumerable<IEnumerable<Dictionary<string, object?>>> ProcessExtractData(byte[] byteArrayContent, IEnumerable<ExcelSheetField> fields, bool ignoreUnindicatedFields, bool excludeSheetsWithNoneOrOneRows)
+        => ValidateProcessExtractData(byteArrayContent, fields, ignoreUnindicatedFields, excludeSheetsWithNoneOrOneRows);
 
-    public List<T> ProcessExtractDataSheet<T>(byte[] byteArrayContent, IEnumerable<ExcelField> fields, bool ignoreUnindicatedFields, int sheetIndex = 0)
+    /// <summary>
+    /// Extract the data of a specific sheet, performing fields validations.
+    /// </summary>
+    /// <typeparam name="T"> Output class whose properties contains <c>JsonPropertyAttribute</c> (or another, if necessary) for matching the columns names. </typeparam>
+    /// <param name="byteArrayContent"> Byte array content. </param>
+    /// <param name="fields"> Fields that the sheet must contain. </param>
+    /// <param name="ignoreUnindicatedFields"> <para>If <c>true</c> does not make any validations on the fields that exists in the sheet but were not indicated as fields,
+    /// as consequence it does not extract them neither.</para>
+    /// If <c>false</c> validate the sheet contains the columns indicated only.</param>
+    /// <param name="sheetIndex"> Sheet index to extract, as default is the first. </param>
+    /// <returns> An <c> IEnumerable </c> containing the rows converted into the output type. </returns>
+    public IEnumerable<T> ProcessExtractDataSheet<T>(byte[] byteArrayContent, IEnumerable<ExcelField> fields, bool ignoreUnindicatedFields, int sheetIndex = 0)
         => ValidateProcessExtractDataSheet<T>(byteArrayContent, sheetIndex, fields, ignoreUnindicatedFields);
 
-    public List<T> ProcessExtractDataSheet<T>(byte[] byteArrayContent, bool ignoreUnindicatedFields, int sheetIndex = 0)
+    /// <summary>
+    /// Extract the data of a specific sheet, performing fields validations.
+    /// </summary>
+    /// <typeparam name="T"> Output class whose properties contains the <c>ExcelFieldAttribute</c> for matching the columns names and provide specific information of the fields. </typeparam>
+    /// <param name="byteArrayContent"> Byte array content. </param>
+    /// <param name="ignoreUnindicatedFields"> <para>If <c>true</c> does not make any validations on the fields that exists in the sheet but were not indicated as fields,
+    /// as consequence it does not extract them neither.</para>
+    /// If <c>false</c> validate the sheet contains the columns indicated only.</param>
+    /// <param name="sheetIndex"> Sheet index to extract, as default it is the first. </param>
+    /// <returns> An <c> IEnumerable </c> containing the rows converted into the output type. </returns>
+    public IEnumerable<T> ProcessExtractDataSheet<T>(byte[] byteArrayContent, bool ignoreUnindicatedFields, int sheetIndex = 0)
     {
         List<ExcelField> fields = GetFieldsFromModel<T>();
 
@@ -57,7 +103,7 @@ public class ExcelDataReaderExtractor : IExcelDataReaderExtractor
         return excelFields;
     }
 
-    private List<List<Dictionary<string, object?>>> ValidateProcessExtractData(byte[] byteArrayContent, IEnumerable<ExcelSheetField>? fields = null, bool? ignoreUnindicatedFields = null)
+    private IEnumerable<IEnumerable<Dictionary<string, object?>>> ValidateProcessExtractData(byte[] byteArrayContent, IEnumerable<ExcelSheetField>? fields = null, bool? ignoreUnindicatedFields = null, bool excludeSheetsWithNoneOrOneRows = false)
     {
         List<List<Dictionary<string, object?>>> excelData;
 
@@ -74,15 +120,27 @@ public class ExcelDataReaderExtractor : IExcelDataReaderExtractor
             foreach (var worksheet in workbook.Worksheets)
             {
                 IEnumerable<ExcelSheetField>? sheetFields = fields?.Where(x => x.SheetIndex == worksheet.Index);
+                bool noneRows = worksheet.Cells.Rows.Count == 0;
+
+                if (excludeSheetsWithNoneOrOneRows && noneRows) continue;
+
                 List<Dictionary<string, object?>> excelDataSheet = GetExcelDataSheet(worksheet, sheetFields, ignoreUnindicatedFields);
+
+                if (excludeSheetsWithNoneOrOneRows && !excelDataSheet.Any()) continue;
+                    
                 excelData.Add(excelDataSheet);
             }
         }
 
+        bool existsOneSheetWithData = ExistsDataSheetNoEmpty(excelData.ToArray());
+
+        if (!existsOneSheetWithData)
+            throw new FileHasNoDataException();
+
         return excelData;
     }
 
-    private List<T> ValidateProcessExtractDataSheet<T>(byte[] byteArrayContent, int sheetIndex = 0, IEnumerable<ExcelField>? fields = null, bool? ignoreUnindicatedFields = null)
+    private IEnumerable<T> ValidateProcessExtractDataSheet<T>(byte[] byteArrayContent, int sheetIndex = 0, IEnumerable<ExcelField>? fields = null, bool? ignoreUnindicatedFields = null)
     {
         List<T> excelDataSheet = new();
 
@@ -95,7 +153,15 @@ public class ExcelDataReaderExtractor : IExcelDataReaderExtractor
             if (worksheet is null)
                 throw new SheetIndexNoExists();
 
-            List<Dictionary<string, object?>> sheetData = GetExcelDataSheet(worksheet, fields, ignoreUnindicatedFields);
+            if (worksheet.Cells.Rows.Count == 0)
+                throw new SheetHasNoRowException($"Sheet number {worksheet.Index + 1} has no rows.");
+
+            IEnumerable<Dictionary<string, object?>> sheetData = GetExcelDataSheet(worksheet, fields, ignoreUnindicatedFields);
+
+            bool dataSheetHasData = ExistsDataSheetNoEmpty(sheetData);
+
+            if (!dataSheetHasData) 
+                throw new SheetHasOnlyOneRowException($"Sheet number {worksheet.Index + 1} has only one row.");
 
             excelDataSheet = ConvertSheetData<T>(sheetData);
         }
@@ -110,6 +176,8 @@ public class ExcelDataReaderExtractor : IExcelDataReaderExtractor
             LoadOptions loadOptions = new(LoadFormat.Xlsx);
             Workbook workbook = new(stream, loadOptions);
 
+            DeleteEmptyRows(workbook.Worksheets);
+
             return workbook;
         }
         catch
@@ -120,18 +188,10 @@ public class ExcelDataReaderExtractor : IExcelDataReaderExtractor
 
     private List<Dictionary<string, object?>> GetExcelDataSheet(Worksheet excelSheet, IEnumerable<IExcelField>? fields = null, bool? ignoreUnindicatedFields = null)
     {
-        DeleteEmptyRows(excelSheet);
-
         RowCollection rows = excelSheet.Cells.Rows;
 
         int columnsNumber = excelSheet.Cells.Count,
             rowsNumber = excelSheet.Cells.Rows.Count;
-
-        if (rowsNumber == 0)
-            throw new EmptySheetException($"Sheet number {excelSheet.Index + 1} is empty");
-
-        if (rowsNumber == 1)
-            throw new MissingColumnNameFirstRowException();
 
         Row columnsNameRow = rows[0];
         bool validateFields = fields?.Any() ?? false;
@@ -154,34 +214,37 @@ public class ExcelDataReaderExtractor : IExcelDataReaderExtractor
         return excelDataSheet;
     }
 
-    private static void DeleteEmptyRows(Worksheet excelSheet)
+    private static void DeleteEmptyRows(WorksheetCollection sheets)
     {
-        RowCollection rows = excelSheet.Cells.Rows;
-        int rowsNumber = rows.Count;
-
-        if (rowsNumber == 0) return;
-
-        for (int rowIndex =  - 1; rowIndex >= 0; rowIndex--)
+        for (int i = 0; i < sheets.Count; i++)
         {
-            Row row = rows.GetRowByIndex(rowIndex);
+            RowCollection rows = sheets[i].Cells.Rows;
+            int rowsNumber = rows.Count;
 
-            bool emptyRow = true;
+            if (rowsNumber == 0) return;
 
-            foreach (Cell column in row)
+            for (int rowIndex = rowsNumber - 1; rowIndex >= 0; rowIndex--)
             {
-                object? value = column.Type is CellValueType.IsNull ? null : column.Value;
+                Row row = rows.GetRowByIndex(rowIndex);
 
-                if (!string.IsNullOrWhiteSpace(value?.ToString()))
+                bool emptyRow = true;
+
+                foreach (Cell column in row)
                 {
-                    emptyRow = false;
-                    break;
+                    object? value = column.Type is CellValueType.IsNull ? null : column.Value;
+
+                    if (!string.IsNullOrWhiteSpace(value?.ToString()))
+                    {
+                        emptyRow = false;
+                        break;
+                    }
                 }
+
+                if (!emptyRow) continue;
+
+                rows.RemoveAt(rowIndex);
             }
-
-            if (!emptyRow) continue;
-
-            rows.RemoveAt(rowIndex);
-        }
+        }    
     }
 
     private static void ValidateColumnsNames(Row row, int columnsNumber, IEnumerable<IExcelField> fields, bool? ignoreUnindicatedFields = null)
@@ -287,7 +350,9 @@ public class ExcelDataReaderExtractor : IExcelDataReaderExtractor
         }
     }
 
-    private static List<T> ConvertSheetData<T>(List<Dictionary<string, object?>> excelSheetData)
+    private static bool ExistsDataSheetNoEmpty(params IEnumerable<Dictionary<string, object?>>[] dataSheets) => dataSheets.Any(x => x.Any());
+
+    private static List<T> ConvertSheetData<T>(IEnumerable<Dictionary<string, object?>> excelSheetData)
     {
         string jsonExcelData = JsonConvert.SerializeObject(excelSheetData);
 
