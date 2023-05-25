@@ -2,15 +2,37 @@
 
 Open Source library specialized in processing, validating and extracting data from files in Excel format. Supports field validations and conversion to a specific type.
 
+
+
+## Installation
+
+Available on **Nuget**
+
+**https://www.nuget.org/packages/ExcelDataReaderExtractor/**
+
+
+
 ## Documentation
+
+You can do DI using the interface
+
+```csharp
+IExcelDataReaderExtractor
+```
+
+which is implemented by
+
+```csharp
+ExcelDataReaderExtractor
+```
+
 
 The library extract the sheet data into the generic form
 ```csharp
-List<List<Dictionary<string, object?>>>
+IEnumerable<IEnumerable<Dictionary<string, object?>>>
 ```
-Each list item of the main list represents a sheet.
-Each sheet contains a list of dictionary, a dictionary represents only one row of the sheet.
-The key of the dictionary is the column name, and the value is the stored on the current field.
+Each item represents a sheet. Each sheet contains a sequence of Dictionary, a single Dictionary represents only one row of the sheet.
+The key of the Dictionary is the column name, and the value is the stored on the current field.
 
 It provides methods to convert each Dictionary element into a specific object T type, to do this is necessary the properties that this T type has, contains JsonPropertyAttribute (or similar, if necessary) or ExcelFieldAttribute for matching with columns names that are stored as keys of the dictionary.
 
@@ -20,44 +42,48 @@ Newtonsoft.Json is used to convert the objects.
 #### Extract all data of all sheets
 
 ```csharp
-List<List<Dictionary<string, object?>>> ProcessExtractData(byte[] byteArrayContent);
+IEnumerable<IEnumerable<Dictionary<string, object?>>> ProcessExtractData(byte[] byteArrayContent, bool excludeSheetsWithNoneOrOneRows);
 ```
 
 Params:
 * byteArrayContent
-Returns List of List of Dictionary, each list item of the main list represents a sheet.
-Each sheet contains a list of dictionary, a dictionary represents only one row of the sheet.
-The key of the dictionary is the column name, and the value is the stored on the current field.
+* excludeSheetsWithNoneOrOneRows: If True exclude sheets with none or one rows, if False the result could contain any IEnumerable with no Dictionary items.
+
+Returns An IEnumerable where each item represents a sheet. Each sheet contains a sequence of Dictionary, a single Dictionary represents only one row of the sheet.
+The key of the Dictionary is the column name, and the value is the stored on the current field.
 
 ##### ---
 #### Extract specific data, performs fields validations
 
 ```csharp
-List<List<Dictionary<string, object?>>> ProcessExtractData(byte[] byteArrayContent, IEnumerable<ExcelSheetField> fields, bool ignoreUnindicatedFields);
+IEnumerable<IEnumerable<Dictionary<string, object?>>> ProcessExtractData(byte[] byteArrayContent, IEnumerable<ExcelSheetField> fields, bool ignoreUnindicatedFields, bool excludeSheetsWithNoneOrOneRows);
 ```
 
 Params:
 * byteArrayContent
 * fields: Fields that the sheets must contain.
-* ignoreUnindicatedFields: If true does not make any validations on the fields that exists in the file but were not indicated as fields, as consequence it does not extract them neither. If false validate the sheets contains the columns indicated only.
+* ignoreUnindicatedFields: If true does not make any validations on the fields that exists in the file but were not indicated as fields, as consequence it does not extract them neither.
+* excludeSheetsWithNoneOrOneRows: If True exclude sheets with none or one rows, if False the result could contain any IEnumerable with no Dictionary items.
 
-Returns a List of List of Dictionary, each list item of the main list represents a sheet. Each sheet contains a list of dictionary, a dictionary represents only one row of the sheet. The key of the dictionary is the column name, and the value is the stored on the current field.
+Returns an IEnumerable where each item represents a sheet. 
+Each sheet contains a sequence of Dictionary, a single Dictionary represents only one row of the sheet.
+The key of the Dictionary is the column name, and the value is the stored on the current field.
 
 ##### ---
 #### Extract the data of a specific sheet, performing fields validations
 
 ```csharp
-List<T> ProcessExtractDataSheet<T>(byte[] byteArrayContent, IEnumerable<ExcelField> fields, bool ignoreUnindicatedFields, int sheetIndex = 0);
+IEnumerable<T> ProcessExtractDataSheet<T>(byte[] byteArrayContent, IEnumerable<ExcelField> fields, bool ignoreUnindicatedFields, int sheetIndex = 0);
 ```
 
 Params:
-* T: Output class whose properties contains JsonPropertyAttribute (or similar, if necessary) for matching the columns names.
+* T: Output class whose properties contains JsonPropertyAttribute (or another, if necessary) for matching the columns names.
 * byteArrayContent: Byte array content.
 * fields: Fields that the sheet must contain.
-* ignoreUnindicatedFields: If true does not make any validations on the fields that exists in the sheet but were not indicated as fields,as consequence it does not extract them neither. If false validate the sheet contains the columns indicated only.
+* ignoreUnindicatedFields: If true does not make any validations on the fields that exists in the sheet but were not indicated as fields, as consequence it does not extract them neither. If false validate the sheet contains the columns indicated only.
 * sheetIndex: Sheet index to extract, as default is the first. 
 
-Returns the rows converted into the output class list.
+Returns an IEnumerable containing the rows converted into the output type.
 
 
 ##### ---
@@ -70,38 +96,56 @@ List<T> ProcessExtractDataSheet<T>(byte[] byteArrayContent, bool ignoreUnindicat
 Params: 
 * T: Output class whose properties contains the ExcelFieldAttribute for matching the columns names and provide specific information of the fields.
 * byteArrayContent
-* ignoreUnindicatedFields: If true does not make any validations on the fields that exists in the sheet but were not indicated as fields, as consequence it does not extract them neither. If false validate the sheet contains the columns indicated only.
+* ignoreUnindicatedFields: If true does not make any validations on the fields that exists in the sheet but were not indicated as fields, as consequence it does not extract them neither.
+If false validate the sheet contains the columns indicated only.
 * sheetIndex: Sheet index to extract, as default it is the first. 
-* The rows converted into the output class list. 
 
+Returns an IEnumerable containing the rows converted into the output type.
 
 
 
 ## Validations
 * File content must be in byte array form
 * Support for XLSX format files
-* Sheet must not be empty
-* First row of every sheet must contain columns names
-* Any sheet must contain at least one row besides the columns names row
+* When using ProcessExtractDataSheet<T> the sheet must contain at least one row besides the columns names row
+* When using ProcessExtractData empty or only one row sheets are not validated (not throw the related exceptions), so the result can contain 
+sequences of sheets with no Dictionary items if excludeSheetsWithNoneOrOneRows is false, if true the result only contains sequences of sheets 
+that have at least two rows
 * Fields with value and no column name are not valid
-* Data type field validation for integers and strings
+* Optional data type field validation for integers and strings
+
+
+
 ## Usage
 
+You can find examples on the test project
 
+#### Return data without converting into a specific type
 ```csharp
+IExcelDataReaderExtractor _excelDataReaderExtractor = new ExcelDataReaderExtractor();
+
 public void Extract_All_Data_No_Convert_Model()
 {
-    List<List<Dictionary<string, object?>>> excelData;
+    IEnumerable<IEnumerable<Dictionary<string, object?>>> excelData;
 
-    excelData = _excelDataReaderExtractor.ProcessExtractData(_columnsWithDataContent);
+    excelData = _excelDataReaderExtractor.ProcessExtractData(_thirdSheetHasValuesContent, excludeSheetsWithNoneOrOneRows: false);
 
-    Assert.NotEmpty(excelData);
+    Assert.True(excelData.Count() == 3 && excelData.Last().Count() == 1);
 }
 
+public void Extract_Data_Excluding_Sheets_With_None_One_Row()
+{
+    IEnumerable<IEnumerable<Dictionary<string, object?>>> excelData;
+
+    excelData = _excelDataReaderExtractor.ProcessExtractData(_thirdSheetHasValuesContent, excludeSheetsWithNoneOrOneRows: true);
+
+    Assert.True(excelData.Count() == 1 && excelData.First().Count() == 1);
+    
+}
 
 public void Extract_Data_Validate_Fields_No_Convert_Model()
 {
-    List<List<Dictionary<string, object?>>> excelData;
+    IEnumerable<IEnumerable<Dictionary<string, object?>>> excelData;
     List<ExcelSheetField> fields = new()
     {
         new()
@@ -123,16 +167,42 @@ public void Extract_Data_Validate_Fields_No_Convert_Model()
     int firstColumnFirstSheetValue = 1;
     string secondColumnSecondSheetValue = "fifth value";
 
-    excelData = _excelDataReaderExtractor.ProcessExtractData(_dataOnTwoSheetsContent, fields, ignoreUnindicatedFields: true);
+    excelData = _excelDataReaderExtractor.ProcessExtractData(_dataOnTwoSheetsContent, fields, ignoreUnindicatedFields: true, excludeSheetsWithNoneOrOneRows: false);
 
-    Assert.True(excelData[0].Any(firstSheet => (int)firstSheet["FirstColumnNumber"]! == firstColumnFirstSheetValue) &&
-                excelData[1].Any(secondSheet => secondSheet["SecondColumnStringSecondSheet"]!.ToString() == secondColumnSecondSheetValue));
+    Assert.True(excelData.Count() == 2 && 
+        excelData.First().Any(firstSheet => (int)firstSheet["FirstColumnNumber"]! == firstColumnFirstSheetValue) &&
+        excelData.Last().Any(secondSheet => secondSheet["SecondColumnStringSecondSheet"]!.ToString() == secondColumnSecondSheetValue));
+}
+```
+
+#### Return data converting into a specific type
+
+Output type T examples
+
+```csharp
+internal class ExcelDataRow
+{
+    [JsonProperty("FirstColumnNumber")]
+    public int FirstColumn { get; set; }
+
+    [JsonProperty("SecondColumnString")]
+    public string SecondColumn { get; set; } = null!;
 }
 
+internal class ExcelDataRowWithFieldAttribute
+{
+    [ExcelField(columnName: "FirstColumnNumber", required: true, type: DataTypes.Integer)]
+    public int FirstColumn { get; set; }
+    
+    [ExcelField(columnName: "SecondColumnString", required: true, type: DataTypes.String)]
+    public string SecondColumn { get; set; } = null!;
+}
+```
 
+```csharp
 public void Extract_Data_Sheet_Fields_Convert_Model()
 {
-    List<ExcelDataRow> excelDataSheet;
+    IEnumerable<ExcelDataRow> excelDataSheet;
     List<ExcelField> fields = new()
     {
         new()
@@ -151,13 +221,12 @@ public void Extract_Data_Sheet_Fields_Convert_Model()
 
     excelDataSheet = _excelDataReaderExtractor.ProcessExtractDataSheet<ExcelDataRow>(_columnsWithDataContent, fields: fields, ignoreUnindicatedFields: true);
 
-    Assert.NotEmpty(excelDataSheet);
+    Assert.True(excelDataSheet.Count() == 2);
 }
-
 
 public void Extract_Data_Second_Sheet_Fields_Convert_Model()
 {
-    List<ExcelDataRowSecondSheet> excelDataSheet;
+    IEnumerable<ExcelDataRowSecondSheet> excelDataSheet;
     List<ExcelField> fields = new()
     {
         new()
@@ -181,18 +250,18 @@ public void Extract_Data_Second_Sheet_Fields_Convert_Model()
 
     Assert.Contains(excelDataSheet, x => x.FirstColumn == firstColumnValue && x.SecondColumn == secondColumnValue);
 }
-
-
+        
 public void Extract_Data_Sheet_Convert_Model_With_Fields_Attribute()
 {
-    List<ExcelDataRowWithFieldAttribute> excelDataSheet;
+    IEnumerable<ExcelDataRowWithFieldAttribute> excelDataSheet;
 
     excelDataSheet = _excelDataReaderExtractor.ProcessExtractDataSheet<ExcelDataRowWithFieldAttribute>(_columnsWithDataContent, ignoreUnindicatedFields: true);
 
     Assert.NotEmpty(excelDataSheet);
 }
+        
 ```
-More examples on the test project.
+
 
 ## Exceptions
 
@@ -202,10 +271,6 @@ Inherits from ColumnException
 #### MissingColumnException
 
 Exception thrown when the sheet does not contains all columns names given by ExcelField, ExcelSheetField or ExcelFieldAttribute.
-
-#### MissingColumnNameFirstRowException
-
-Exception thrown when a sheet does not contain any column name in the first row.
 
 #### NotIndicatedColumnNameException
 
@@ -238,7 +303,8 @@ Exception thrown when the field type value is different from the one given by Da
 
 #### MissingExcelFieldAttributeException
 
-Exception thrown when using the method to extract data and convert into a specific object type T without indicating the list of fields apart. In this case, the type T must include the ExcelFieldAttribute in all of its properties.
+Exception thrown when using the method to extract data and convert into a specific object type T without indicating the list of fields apart.
+In this case, the type T must include the ExcelFieldAttribute in all of its properties.
 
 #### RequiredFieldException
 
@@ -249,17 +315,23 @@ Exception thrown when a field is required and has no value.
 ### Sheet Exceptions
 Inherits from SheetException
 
-#### EmptySheetException
+#### SheetHasNoRowException
+Exception thrown when the sheet has no rows.
 
-Exception thrown when the sheet it is empty.
+#### SheetHasOnlyOneRowException
+Exception thrown when a sheet has only one row.
 
 #### SheetIndexNoExists
-
 Exception thrown when the sheet index provided does not exists in the file.
+
 
 #### ---
 ### File Exceptions
+Inherits from FileException
 
 #### UnsupportedFileException
 
 Exception thrown when trying to process an unsupported file.
+
+#### FileHasNoDataException
+Exception thrown when the sheet/s of the file are empty or have only one row.
