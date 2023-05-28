@@ -104,15 +104,21 @@ Returns an IEnumerable containing the rows converted into the output type.
 
 
 
-## Validations
+## Considerations
 * File content must be in byte array form
 * Support for XLSX format files
-* When using ProcessExtractDataSheet<T> the sheet must contain at least one row besides the columns names row
-* When using ProcessExtractData empty or only one row sheets are not validated (not throw the related exceptions), so the result can contain 
-sequences of sheets with no Dictionary items if excludeSheetsWithNoneOrOneRows is false, if true the result only contains sequences of sheets 
-that have at least two rows
+* Takes the first column has the column names
+* Removes rows with no data
 * Fields with value and no column name are not valid
 * Optional data type field validation for integers and strings
+* When using ProcessExtractDataSheet<T> the sheet must contain at least one row besides the column names row
+* When using ProcessExtractData with excludeSheetsWithNoneOrOneRows true, the result only contains sheets that have at least one row besides the columns names row. 
+**IEnumerable<IEnumerable<Dictionary<string, object?>>> result -> result.Any(sheet => !sheet.Any()) -> false**
+If excludeSheetsWithNoneOrOneRows is false, the result can contain empty sheets or with one row (columns names), these are IEnumerable sheets with no Dictionary items (no data to extract).
+**result.Any(sheet => !sheet.Any()) -> true or false**
+The sheets are added to the result in the same order as the file
+This method not performs any validation for sheets with none or one row, it means that not throws any related Exceptions to these cases
+If the file has no sheets with more than one row throws FileHasNoDataException
 
 
 

@@ -18,7 +18,7 @@
     <PackageProjectUrl>https://github.com/cennav/ExcelDataReaderExtractor.git</PackageProjectUrl>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <DebugType>embedded</DebugType>
-    <Version>2.2.0</Version>
+    <Version>2.2.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
