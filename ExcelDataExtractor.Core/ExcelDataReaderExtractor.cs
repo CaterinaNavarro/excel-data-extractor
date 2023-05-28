@@ -117,16 +117,20 @@ public class ExcelDataReaderExtractor : IExcelDataReaderExtractor
 
             excelData = new(sheetCountFile);
 
-            foreach (var worksheet in workbook.Worksheets)
+            foreach (var worksheet in workbook.Worksheets.OrderBy(x => x.Index))
             {
                 IEnumerable<ExcelSheetField>? sheetFields = fields?.Where(x => x.SheetIndex == worksheet.Index);
-                bool noneRows = worksheet.Cells.Rows.Count == 0;
+                int rowsNumber = worksheet.Cells.Rows.Count;
+                bool hasNoneRow = rowsNumber == 0,
+                    hasOneRow = rowsNumber == 1,
+                    hasMoreThanOneRow = rowsNumber > 1;
+                
+                if (excludeSheetsWithNoneOrOneRows && (hasNoneRow || hasOneRow)) continue;
 
-                if (excludeSheetsWithNoneOrOneRows && noneRows) continue;
-
-                List<Dictionary<string, object?>> excelDataSheet = GetExcelDataSheet(worksheet, sheetFields, ignoreUnindicatedFields);
-
-                if (excludeSheetsWithNoneOrOneRows && !excelDataSheet.Any()) continue;
+                List<Dictionary<string, object?>> excelDataSheet = new();
+                
+                if (hasMoreThanOneRow)
+                    excelDataSheet = GetExcelDataSheet(worksheet, sheetFields, ignoreUnindicatedFields);
                     
                 excelData.Add(excelDataSheet);
             }
